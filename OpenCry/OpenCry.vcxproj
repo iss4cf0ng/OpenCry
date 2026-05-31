@@ -128,14 +128,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
-    <ClCompile Include="EZAES.cpp" />
-    <ClCompile Include="EZRSA.cpp" />
+    <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="HybridCrypt.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
-    <ClInclude Include="EZAES.h" />
-    <ClInclude Include="EZRSA.h" />
+    <ClInclude Include="FileIO.h" />
+    <ClInclude Include="HybridCrypt.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

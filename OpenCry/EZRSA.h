@@ -20,7 +20,7 @@ public:
 
 	BOOL fnbGenKey();
 	BOOL fnbImport(LPCWSTR pKeyType, PUCHAR pbBlob, ULONG cbBlob);
-	BOOL fnbImport(LPCWSTR pbKeyType, LPCWSTR pFileName);
+	BOOL fnbImport(LPCWSTR pbKeyType, LPCTSTR pFileName);
 	BOOL fnbExport(LPCWSTR pbKeyType, PUCHAR pbBlob, ULONG cbBlob, PULONG pResult);
 	BOOL fnbExport(LPCWSTR pKeyType, LPCTSTR pFileName, EZRSA *pEncryptKey);
 	BOOL fnbEncrypt(PUCHAR pbPlain, ULONG cbPlain, PUCHAR pbCipher, ULONG cbCipher, PULONG pcbResult);

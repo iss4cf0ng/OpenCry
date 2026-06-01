@@ -11,8 +11,8 @@
 class EZAES
 {
 private:
-	BCRYPT_HANDLE m_hProv;
-	BCRYPT_KEY_HANDLE m_hKey;
+	BCRYPT_HANDLE m_hProv; // Provider
+	BCRYPT_KEY_HANDLE m_hKey; // AES key
 	ULONG m_cbBlock;
 	PUCHAR m_pbIV;
 	ULONG m_cbIV;

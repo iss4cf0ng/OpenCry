@@ -308,6 +308,15 @@ Error_Exit:
 
 BOOL HybridCrypt::fnDecrypt(LPCTSTR pFileName)
 {
+	TCHAR pTempFile[MAX_PATH];
+	TCHAR pTarget[MAX_PATH];
+
+	UCHAR abMagic[8];
+	ULONG cbCipherKey;
+	UCHAR abCipherKey[0x200];
+	ULONG nCryptType = 0;
+	LARGE_INTEGER ddwFileSize;
+
 
 
 	return TRUE;

@@ -25,8 +25,8 @@ public:
 
 	BOOL fnbGenKey(PUCHAR pbKey, ULONG cbKey);
 	BOOL fnbInit();
-	BOOL fnbEncrypt(PUCHAR pbPlain, ULONG cbPlain, PUCHAR pbCipher, ULONG cbCipher, PUCHAR pcbResult);
-	BOOL fnbDecrypt(PUCHAR pbCipher, ULONG cbCipher, PUCHAR pbPlain, ULONG cbPlain, PUCHAR pcbResult);
+	BOOL fnbEncrypt(PUCHAR pbPlain, ULONG cbPlain, PUCHAR pbCipher, ULONG cbCipher, PULONG pcbResult);
+	BOOL fnbDecrypt(PUCHAR pbCipher, ULONG cbCipher, PUCHAR pbPlain, ULONG cbPlain, PULONG pcbResult);
 };
 
 typedef EZAES *PEZAES;

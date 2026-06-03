@@ -93,7 +93,7 @@ BOOL EZAES::fnbInit()
 	return TRUE;
 }
 
-BOOL EZAES::fnbEncrypt(PUCHAR pbPlain, ULONG cbPlain, PUCHAR pbCipher, ULONG cbCipher, PUCHAR pcbResult)
+BOOL EZAES::fnbEncrypt(PUCHAR pbPlain, ULONG cbPlain, PUCHAR pbCipher, ULONG cbCipher, PULONG pcbResult)
 {
 	NTSTATUS status = STATUS_UNSUCCESSFUL;
 	ULONG cbData;
@@ -124,7 +124,7 @@ BOOL EZAES::fnbEncrypt(PUCHAR pbPlain, ULONG cbPlain, PUCHAR pbCipher, ULONG cbC
 	return TRUE;
 }
 
-BOOL EZAES::fnbDecrypt(PUCHAR pbCipher, ULONG cbCipher, PUCHAR pbPlain, ULONG cbPlain, PUCHAR pcbResult)
+BOOL EZAES::fnbDecrypt(PUCHAR pbCipher, ULONG cbCipher, PUCHAR pbPlain, ULONG cbPlain, PULONG pcbResult)
 {
 	NTSTATUS status = STATUS_UNSUCCESSFUL;
 	ULONG cbData;

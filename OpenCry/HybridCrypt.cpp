@@ -191,11 +191,124 @@ BOOL HybridCrypt::fnEncrypt(LPCTSTR pFileName)
 	ddwFileSize.QuadPart = 0;
 	GetFileTime(hFile, &tsCreationTime, &tsLastAccessedTime, &tsLastModifiedTime);
 
-	BOOL bResult = ReadFile(hFile, abMagic, sizeof(abMagic), &cbRead, 0);
+	if (!ReadFile(hFile, abMagic, sizeof(abMagic), &cbRead, 0)
+		&& !memcmp(abMagic, EZH_MAGIC, sizeof(abMagic))
+		&& ReadFile(hFile, &cbCipherKey, sizeof(cbCipherKey), &cbRead, 0)
+		&& cbCipherKey <= sizeof(abCipherKey)
+		&& cbCipherKey == 0x100
+		&& ReadFile(hFile, abCipherKey, 0x100, &cbRead, 0)
+		&& ReadFile(hFile, &nCryptType, sizeof(nCryptType), &cbRead, 0)
+		&& ReadFile(hFile, &ddwFileSize.QuadPart, sizeof(ddwFileSize), &cbRead, 0)
+		&& nCryptType == uEncryptOP
+	)
+	{
+		CloseHandle(hFile);
+		hFile = INVALID_HANDLE_VALUE;
+		DEBUG("exit\n");
 
+		return TRUE;
+	}
+
+	GetFileSizeEx(hFile, &ddwFileSize);
+	SetFilePointer(hFile, 0, 0, FILE_BEGIN);
+
+	_stprintf_s(pTempFile, MAX_PATH, _T("%s%s"), pFileName, EZH_SUFFIX_TEMP);
+
+	if (INVALID_HANDLE_VALUE == (hWrite = CreateFile(pTempFile, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)))
+	{
+		DEBUG("Open temp file %s error.\n", pTempFile);
+		return FALSE;
+	}
+
+	fnbGenRandom(abKey, sizeof(abKey));
+
+	m_pEncRSA->fnbEncrypt(abKey, sizeof(abKey), abCipherKey, sizeof(abCipherKey), &cbCipherKey);
+
+	pAES = new EZAES();
+	if (!(WriteFile(hWrite, EZH_MAGIC, 8, &cbWrite, 0)
+		&& WriteFile(hWrite, &cbCipherKey, sizeof(cbCipherKey), &cbWrite, 0)
+		&& WriteFile(hWrite, abCipherKey, cbCipherKey, &cbWrite, 0)
+		&& WriteFile(hWrite, &uEncryptOP, sizeof(uEncryptOP), &cbWrite, 0)
+		&& WriteFile(hWrite, &ddwFileSize.QuadPart, sizeof(ddwFileSize.QuadPart), &cbWrite, 0)
+		))
+	{
+		DEBUG("Write header error %s\n", pTempFile);
+		goto Error_Exit;
+	}
+
+	ULONG cbData;
+	LARGE_INTEGER cbSize;
+	cbSize.QuadPart = ddwFileSize.QuadPart;
+	while (cbSize.QuadPart > 0)
+	{
+		cbInBlock = cbSize.QuadPart < EZH_IOBUFFERSIZE ? cbSize.LowPart : EZH_IOBUFFERSIZE;
+		if (!(ReadFile(hFile, pbInBlock, cbInBlock, &cbRead, 0) && cbRead == cbInBlock))
+		{
+			DEBUG("Read block error %s\n", pFileName);
+			goto Error_Exit;
+		}
+
+		cbOutBlock = ((cbInBlock + 15) >> 4) << 4;
+
+		// padding
+		if (cbOutBlock > cbInBlock)
+			ZeroMemory(pbInBlock + cbInBlock, cbOutBlock - cbInBlock);
+
+		pAES->fnbEncrypt(pbInBlock, cbInBlock, pbOutBlock, EZH_IOBUFFERSIZE, &cbData);
+		if (!(WriteFile(hWrite, pbOutBlock, cbOutBlock, &cbWrite, 0) && cbWrite == cbOutBlock))
+		{
+			DEBUG("Write block error %s\n", pTempFile);
+			goto Error_Exit;
+		}
+
+		cbSize.QuadPart -= cbInBlock;
+	}
+
+	// set time
+	SetFileTime(hFile, &tsCreationTime, &tsLastAccessedTime, &tsLastModifiedTime);
+
+	// close handles
+	CloseHandle(hWrite);
+	CloseHandle(hFile);
+	hWrite = INVALID_HANDLE_VALUE;
+	hFile = INVALID_HANDLE_VALUE;
+
+	if (MoveFile(pTempFile, pTarget))
+	{
+		SetFileAttributes(pTarget, FILE_ATTRIBUTE_NORMAL);
+		DeleteFile(pFileName);
+	}
+	else
+	{
+		DeleteFile(pTempFile);
+	}
+
+	if (pAES)
+	{
+		delete pAES;
+		pAES = NULL;
+	}
+
+	return TRUE;
+
+Error_Exit:
+	CloseHandle(hWrite);
+	CloseHandle(hFile);
+	hWrite = INVALID_HANDLE_VALUE;
+	hFile = INVALID_HANDLE_VALUE;
+
+	if (pAES)
+	{
+		delete pAES;
+		pAES = NULL;
+	}
+
+	return FALSE;
 }
 
 BOOL HybridCrypt::fnDecrypt(LPCTSTR pFileName)
 {
 
+
+	return TRUE;
 }
